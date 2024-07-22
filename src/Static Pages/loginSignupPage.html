@@ -1,0 +1,128 @@
+<!--- This is just for display / testing backend purposes so it doesn't look the best. Try not to judge this :D --->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-size: 1.5em;
+            text-align: center;
+        }
+        #email-field { display: none; }
+    </style>
+    <script>
+        function showLoginForm() {
+            document.getElementById('email-field').style.display = 'none';
+            document.getElementById('form').dataset.action = '/login';
+            document.getElementById('password').type = 'password';
+            document.getElementById('switch-form-button').innerText = 'Create New Account';
+            document.getElementById('submit-button').innerText = 'Login';
+            clearFields();
+        }
+
+        function showSignUpForm() {
+            document.getElementById('email-field').style.display = 'block';
+            document.getElementById('form').dataset.action = '/users/newUser';
+            document.getElementById('password').type = 'text';
+            document.getElementById('switch-form-button').innerText = 'Login';
+            document.getElementById('submit-button').innerText = 'Sign Up';
+            clearFields();
+        }
+
+        function clearFields() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('email').value = '';
+        }
+
+        function checkForSuccessMessage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                alert('Account creation successful!');
+            }
+        }
+
+        async function handleFormSubmission(event) {
+            event.preventDefault();
+            console.log("Form submission started");
+
+            const form = event.target;
+            const action = form.dataset.action;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            console.log("Action:", action);
+            console.log("Data:", data);
+
+            try {
+                const response = await fetch(action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                console.log("Response status:", response.status);
+
+                const result = await response.json();
+                console.log("Result:", result);
+
+                if (result.success) {
+                    window.location.href = result.redirectUrl;
+                } else {
+                    if (result.alreadyLoggedIn) {
+                        alert(result.message);
+                        window.location.href = result.redirectUrl; // Redirect to homepage
+                    } else {
+                        alert(result.message);
+                    }
+                }
+            } catch (error) {
+                console.error("Error during form submission:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkForSuccessMessage();
+            document.getElementById('switch-form-button').addEventListener('click', function() {
+                if (this.innerText === 'Create New Account') {
+                    showSignUpForm();
+                } else {
+                    showLoginForm();
+                }
+            });
+
+            document.getElementById('form').addEventListener('submit', handleFormSubmission);
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <h1>Login / Sign Up</h1>
+        <form id="form" method="POST" data-action="/login">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <div id="email-field">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email"><br>
+            </div>
+
+            <button type="submit" id="submit-button">Login</button>
+        </form>
+
+        <button id="switch-form-button">Create New Account</button>
+    </div>
+</body>
+</html>

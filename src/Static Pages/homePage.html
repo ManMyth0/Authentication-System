@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-size: 2em;
+            position: relative;
+        }
+
+        #logout-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 0.5em;
+            padding: 10px 20px;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                alert('Logout successful!');
+            }
+        });
+
+        function handleLogout() {
+            // Create a form to submit a POST request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout';
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</head>
+<body>
+    <button id="logout-button" onclick="handleLogout()">Logout</button>
+    <p><b>HELLO WORLD!</b></p>
+</body>
+</html>
